@@ -1,0 +1,491 @@
+Checking for a single county
+
+Static House data
+
+```{r}
+library(tidyverse)
+statichouse<- read_csv('/Users/aaryanwani/Downloads/statichouse.csv')
+#view(statichouse)
+#summary(statichouse)
+#str(statichouse)
+#summary(statichouse$in.sqft)
+#hist(statichouse$in.sqft == "1690")
+statichouse1<-statichouse[,-c(2,3,4,6,7,8,12,14,15,16, 26, 29, 31,32,34,35,36,37,38,39,40,41,42,43,44,45,47,
+49,50,51,52,53,54,55,56,63,72,73,79,84,
+85,86,87,88,89,90,91,103,104,106,107,108
+,109,120,121,124,126,131,136,137,138,139,
+140,141,142,143,144,146,153,159,161,162,163,165,166,167,168,169)]
+
+unique(statichouse$in.county)
+names(statichouse)
+smallLarge<- statichouse %>%  filter(in.sqft %in% c('328', '8194'))
+unique(smallLarge$bldg_id)
+
+avghouses<- statichouse %>%  filter(in.sqft == '1690')
+
+avghouses1<- avghouses[1:250,]
+avghouse3<- avghouses %>%  filter(in.infiltration %in% c('15 ACH50', '10 ACH50','20 ACH50'))
+#view(avghouse3)
+
+avghouse2<- avghouses1 %>%  filter(in.infiltration %in% c('15 ACH50', '10 ACH50','20 ACH50','25 ACH50'))
+#view(avghouse2)
+view(avghouses1)
+unique(avghouses1$in.county)
+unique(avghouses1$in.tenure)
+
+unique(avghouse2$in.county)
+```
+
+
+
+```{r}
+library(ggplot2)
+
+ggplot(avghouses1, aes(x=in.infiltration, y=bldg_id, fill=in.infiltration)) +
+  geom_bar(stat="identity") +
+  theme_minimal() 
+
+library(ggplot2)
+
+ggplot(house, aes(x=in.infiltration, y=bldg_id, fill=in.infiltration)) +
+  geom_bar(stat="identity") +
+  theme_minimal() 
+  
+
+library(ggplot2)
+
+ggplot(m1, aes(x=IPCConsumptionperday, y=in.county, fill=in.county)) +
+  geom_bar(stat="identity") +
+  theme_minimal() 
+ 
+
+
+```
+
+merge house and energy
+```{r}
+names(energyhouse)[which(names(energyhouse) == "building_id")] <- "bldg_id"
+avghouses1$bldg_id<- as.character(avghouses1$bldg_id)
+energyhouse$bldg_id<- as.character(energyhouse$bldg_id)
+
+ma <- left_join(energyhouse, avghouses1, by = c("bldg_id"))
+
+view(ma)
+
+#plots for the same
+ggplot(ma, aes(x=TotalConsumptionperday, y=in.infiltration, fill=in.infiltration)) +
+  geom_bar(stat="identity") +
+  theme_minimal() 
+
+ggplot(ma, aes(x=TotalConsumptionperday, y=in.county, fill=in.county)) +
+  geom_bar(stat="identity") +
+  theme_minimal() 
+
+ggplot(ma, aes(x=TotalConsumptionperday, y=in.ducts, fill=in.ducts)) +
+  geom_bar(stat="identity") +
+  theme_minimal() 
+
+ggplot(ma, aes(x=TotalConsumptionperday, y=in.windows, fill=in.windows)) +
+  geom_bar(stat="identity") +
+  theme_minimal() 
+
+ggplot(ma, aes(x=TotalConsumptionperday, y=in.occupants, fill=in.occupants)) +
+  geom_bar(stat="identity") +
+  theme_minimal() 
+
+ggplot(ma, aes(x=TotalConsumptionperday, y=in.tenure, fill=in.tenure)) +
+  geom_bar(stat="identity") +
+  theme_minimal() 
+```
+
+```{r}
+mb<- ma
+
+mb<- mb %>% group_by(in.county) %>% summarise(TotalConsumption = mean(TotalConsumptionperday))
+
+view(mb)
+```
+
+
+
+Weather data merging
+```{r}
+weatherG4500910<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500910.csv')
+weatherG4500730<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500730.csv')
+weatherG4500710<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500710.csv')
+weatherG4500790<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500790.csv')
+weatherG4500450<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500450.csv')
+weatherG4500150<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500150.csv')
+weatherG4500350<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500350.csv')
+weatherG4500190<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500190.csv')
+weatherG4500830<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500830.csv')
+weatherG4500510<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500510.csv')
+weatherG4500070<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500070.csv')
+weatherG4500670<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500670.csv')
+weatherG4500750<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500750.csv')
+weatherG4500290<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500290.csv')
+weatherG4500490<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500490.csv')
+weatherG4500130<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500130.csv')
+weatherG4500630<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500630.csv')
+weatherG4500550<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500550.csv')
+weatherG4500010<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500010.csv')
+weatherG4500430<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500430.csv')
+weatherG4500890<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500890.csv')
+weatherG4500850<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500850.csv')
+weatherG4500770<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500770.csv')
+weatherG4500030<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500030.csv')
+weatherG4500590<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500590.csv')
+weatherG4500610<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500610.csv')
+weatherG4500250<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500250.csv')
+weatherG4500530<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500530.csv')
+weatherG4500210<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500210.csv')
+weatherG4500410<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500410.csv')
+weatherG4500570<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500570.csv')
+weatherG4500310<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500310.csv')
+weatherG4500090<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500090.csv')
+weatherG4500470<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500470.csv')
+weatherG4500330<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500330.csv')
+weatherG4500370<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500370.csv')
+weatherG4500390<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500390.csv')
+weatherG4500050<-read_csv('https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/G4500050.csv')
+
+
+
+weatherG4500370 <- mutate(weatherG4500370, in.county = 'G4500370')
+weatherG4500790 <- mutate(weatherG4500790, in.county = 'G4500790')
+weatherG4500450 <- mutate(weatherG4500450, in.county = 'G4500450')
+weatherG4500750 <- mutate(weatherG4500750, in.county = 'G4500750')
+weatherG4500490 <- mutate(weatherG4500490, in.county = 'G4500490')
+weatherG4500070 <- mutate(weatherG4500070, in.county = 'G4500070')
+weatherG4500550 <- mutate(weatherG4500550, in.county = 'G4500550')
+weatherG4500150 <- mutate(weatherG4500150, in.county = 'G4500150')
+weatherG4500910 <- mutate(weatherG4500910, in.county = 'G4500910')
+weatherG4500770 <- mutate(weatherG4500770, in.county = 'G4500770')
+weatherG4500590 <- mutate(weatherG4500590, in.county = 'G4500590')
+weatherG4500610 <- mutate(weatherG4500610, in.county = 'G4500610')
+weatherG4500510 <- mutate(weatherG4500510, in.county = 'G4500510')
+weatherG4500630 <- mutate(weatherG4500630, in.county = 'G4500630')
+weatherG4500350 <- mutate(weatherG4500350, in.county = 'G4500350')
+weatherG4500830 <- mutate(weatherG4500830, in.county = 'G4500830')
+weatherG4500530 <- mutate(weatherG4500530, in.county = 'G4500530')
+weatherG4500210 <- mutate(weatherG4500210, in.county = 'G4500210')
+weatherG4500310 <- mutate(weatherG4500310, in.county = 'G4500310')
+weatherG4500090 <- mutate(weatherG4500090, in.county = 'G4500090')
+weatherG4500030 <- mutate(weatherG4500030, in.county = 'G4500030')
+weatherG4500710 <- mutate(weatherG4500710, in.county = 'G4500710')
+weatherG4500290 <- mutate(weatherG4500290, in.county = 'G4500290')
+weatherG4500130 <- mutate(weatherG4500130, in.county = 'G4500130')
+weatherG4500330 <- mutate(weatherG4500330, in.county = 'G4500330')
+weatherG4500190 <- mutate(weatherG4500190, in.county = 'G4500190')
+weatherG4500570 <- mutate(weatherG4500570, in.county = 'G4500570')
+weatherG4500470 <- mutate(weatherG4500470, in.county = 'G4500470')
+weatherG4500250 <- mutate(weatherG4500250, in.county = 'G4500250')
+weatherG4500010 <- mutate(weatherG4500010, in.county = 'G4500010')
+weatherG4500730 <- mutate(weatherG4500730, in.county = 'G4500730')
+weatherG4500370 <- mutate(weatherG4500370, in.county = 'G4500370')
+weatherG4500850 <- mutate(weatherG4500850, in.county = 'G4500850')
+weatherG4500670 <- mutate(weatherG4500670, in.county = 'G4500670')
+weatherG4500410 <- mutate(weatherG4500410, in.county = 'G4500410')
+weatherG4500050 <- mutate(weatherG4500050, in.county = 'G4500050')
+weatherG4500390 <- mutate(weatherG4500390, in.county = 'G4500390')
+weatherG4500890 <- mutate(weatherG4500890, in.county = 'G4500890')
+weatherG4500870 <- mutate(weatherG4500870, in.county = 'G4500870')
+weatherG4500430 <- mutate(weatherG4500430, in.county = 'G4500430')
+
+
+
+weatherall <- rbind(weatherG4500790, weatherG4500450, weatherG4500750, weatherG4500490, weatherG4500070, weatherG4500550, weatherG4500150, weatherG4500910, weatherG4500770, weatherG4500590, weatherG4500610, weatherG4500510, weatherG4500630, weatherG4500350, weatherG4500830, weatherG4500530, weatherG4500210, weatherG4500310, weatherG4500090, weatherG4500030, weatherG4500710, weatherG4500290, weatherG4500130, weatherG4500330, weatherG4500190, weatherG4500570, weatherG4500470, weatherG4500250, weatherG4500010, weatherG4500730, weatherG4500370, weatherG4500850, weatherG4500670, weatherG4500410, weatherG4500050, weatherG4500390, weatherG4500890, weatherG4500870, weatherG4500430
+)
+
+#view(weatherall)
+
+weatherall <- weatherall %>%
+  mutate(date_time = ymd_hms(date_time))
+
+# Filter for the month of July, for all hours
+weather_july <- weatherall %>%
+  filter(month(date_time) == 7)
+
+view(weather_july)
+
+```
+
+
+```{r}
+weather_july$day<-(substr(weather_july$date_time,9,10))
+
+Wg <-weather_july
+weather_g<- Wg %>%
+  group_by(in.county,day) %>% summarise(avgdaytemp = mean(`Dry Bulb Temperature [°C]`), avghumidity = mean(`Relative Humidity [%]`))
+
+view(weather_g)
+
+```
+
+
+
+Energy Data 
+ 
+```{r}
+
+library(data.table)
+
+# Set the path to the directory containing your CSV files
+csv_directory <- "/Users/aaryanwani/Desktop/idsproject/ids 4"
+
+# List all CSV files in the directory
+file_names <- list.files(path = csv_directory, pattern = "\\.csv$", full.names = TRUE)
+
+# Function to read each file and add building ID and county number
+read_file_add_id <- function(file_path) {
+  filename <- sub(".csv", "", basename(file_path))
+  parts <- strsplit(filename, "_")[[1]]
+  parts <- trimws(parts)  # Remove any leading/trailing whitespace
+  
+    building_id <- parts[1]
+    county_number <- parts[2]
+  
+  
+  # Read the CSV file using fread from data.table for efficiency
+  dt <- fread(file_path)
+  
+  # Add building ID and county number columns to the data table
+  dt[, building_id := building_id]
+  dt[, county_number := county_number]
+  
+  return(dt)
+}
+
+# Read all CSV files, apply the function, and combine them into one data table
+all_data <- rbindlist(lapply(file_names, read_file_add_id), use.names = TRUE, fill = TRUE)
+
+# Print out a summary to check for issues
+#print(head(all_data))
+summary(all_data$county_number)  # Check for NA values and other issues
+
+
+
+library(dplyr)
+library(lubridate)
+
+# Assume df is your dataframe
+all_data$time <- as.POSIXct(all_data$time, format="%y-%m-%d %H:%M:%S")  
+# make sure 'time' is POSIXct
+
+# Filter for July
+julydatacounty <- all_data %>% 
+  filter(month(time) == 07)
+view(julydatacounty)
+
+#missing values check
+jd <-julydatacounty
+jd[is.na(jd$out.electricity.cooling.energy_consumption),]
+jd[is.na(jd$out.electricity.plug_loads.energy_consumption),]
+
+#since column 21 had negative values
+
+julydatacounty<-julydatacounty[,-c(21)]
+julydatacounty$TotalConsumption <- rowSums(julydatacounty[,1:41], na.rm = TRUE)
+
+#julydatacounty$plugcoolConsumption <- rowSums(julydatacounty[,c(5,18)], na.rm = TRUE)
+
+julydatacounty$IPCConsumption <- rowSums(julydatacounty[,c(5,16,18)], na.rm = TRUE)
+
+julydatacounty$day<-(substr(julydatacounty$time,9,10))
+
+julyd <-julydatacounty
+energy_jd1<- julyd %>%
+  group_by(county_number,day) %>%
+  summarise(TotalConsumptionperday = mean(TotalConsumption),
+            IPCConsumptionperday = mean(IPCConsumption))
+view(energy_jd1)
+view(julyd)
+
+energyhouse <- julyd %>%
+  group_by(building_id) %>%
+  summarise(TotalConsumptionperday = mean(TotalConsumption),
+            IPCConsumptionperday = mean(IPCConsumption))
+view(energyhouse)
+
+
+#for cooling energy consp
+lreg1<- lm(data = julydatacounty, out.electricity.cooling.energy_consumption ~ TotalConsumption)
+summary(lreg1)
+
+#for plug loads energy consp
+#lreg2<- lm(data = julydatacounty, plugcoolConsumption ~ TotalConsumption)
+#summary(lreg2)
+
+#for interiorplugload and cooling
+lreg3<- lm(data = julydatacounty, IPCConsumption ~ TotalConsumption)
+summary(lreg3)
+
+```
+
+
+
+
+```{r}
+
+names(energy_jd1)[which(names(energy_jd1) == "county_number")] <- "in.county"
+energy_jd1[is.na(energy_jd1$in.county),]
+
+m1 <- left_join(weather_g, energy_jd1, by = c("in.county","day"))
+
+view(m1)
+
+
+```
+
+
+modelingg
+```{r}
+#svm
+library(kernlab)
+library(e1071)
+library(caret)
+
+model_svm <- ksvm(data = m1, IPCConsumptionperday ~ avgdaytemp)
+summary(model_svm)
+
+
+library(randomForest)
+model_rf <- randomForest(data = m1, IPCConsumptionperday ~ avgdaytemp)
+print(model_rf)
+
+
+```
+
+
+
+```{r}
+mainenergy<- julydatacounty
+view(julydatacounty)
+#these columns contribute most to the energy
+mainenergy<-mainenergy[,c(5,16,18,41,42,43,44,45)]
+
+names(weather_july)[which(names(weather_july) == "date_time")] <- "time"
+
+
+names(mainenergy)[which(names(mainenergy) == "building_id")] <- "bldg_id"
+mainenergy$bldg_id <- as.numeric(mainenergy$bldg_id)
+house$bldg_id <- as.numeric(house$bldg_id)
+
+
+merge1 <- left_join(weather_july, mainenergy, by = c("time"))
+#view(merge1)
+
+```
+
+
+plotting for energy vs temperature to check for relation
+```{r}
+
+m2<-m1
+
+counties_to_remove <- c("G4500050", "G4500130", "G4500610","G4500250","G4500290","G4500430","G4500530","G4500570","G4500790","G4500750","G4500670","G4500830","G4500870","G4500450","G4500390","G4500590","G4500910","G4500550","G4500710")  # Add as many as needed
+m2 <- m2[!m2$in.county %in% counties_to_remove, ]
+
+m3<-m1
+
+counties<- c("G4500190", "G4500490", "G4500590","G4500890","G4500630")
+m3<- m3[m3$in.county %in% counties, ]
+
+max(m2$avgdaytemp)
+max(m2$IPCConsumptionperday)
+#m2<-m2[,-4]
+
+
+ggplot(m1, aes(x = avgdaytemp, y = IPCConsumptionperday)) +
+  geom_point(alpha = 0.5) +
+  theme_minimal()
+
+
+model <- lm(TotalConsumptionperday ~ avgdaytemp +in.county , data = m1)
+model1 <- lm(IPCConsumptionperday ~ avgdaytemp + avghumidity + in.county , data = m1)
+
+model2 <- lm(IPCConsumptionperday ~ avgdaytemp + avghumidity, data = m2)
+# Summary of the model to see coefficients and statistics
+summary(model1)
+summary(model2)
+
+#model3 <- lm(IPCConsumptionperday ~ avgdaytemp + avghumidity, data = m3)
+#ummary(model3)
+
+
+ preddf<- data.frame(avgdaytemp=26.29, IPCConsumptionperday=2.13)
+ 
+ predict(model,preddf)
+
+ 
+#Generalised Additive Model
+library(mgcv)
+model_gam <- gam(IPCConsumptionperday ~ s(avgdaytemp) + s(avghumidity), data = m2)
+summary(model_gam)
+
+#Gradient Boosting Machines
+library(gbm)
+model_gbm <- gbm(IPCConsumptionperday ~ avgdaytemp + avghumidity, data = m2, distribution = "gaussian", n.trees = 5000, interaction.depth = 3, shrinkage = 0.01, cv.folds = 5)
+summary(model_gbm)
+
+```
+
+
+
+
+
+Making boxplots for each column seperately to check which 1 affects the most to the total energy
+
+```{r}
+# Adjust the margins to give more space for the plot
+par(mar=c(5, 4, 4, 2) + 0.1)
+
+# Plotting using base R
+boxplot(jd[, 1:(ncol(jd)-2)], las=2, cex.axis=0.7, main="Boxplot of All Columns Except the Last Two")
+library(ggplot2)
+library(reshape2)
+
+# Convert data to long format for ggplot2
+data_long <- melt(jd[, 1:(ncol(jd)-2)])
+
+# Plotting using ggplot2 with adjustments
+ggplot(data_long, aes(x=variable, y=value)) +
+  geom_boxplot(width=0.2) +  # Adjust the width for visibility
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1, size=8), axis.text.y = element_text(size=8)) +
+  labs(title="Boxplot of All Columns Except the Last Two", x="Variables", y="Values")
+# Divide the data frame into smaller subsets, for example:
+data_part1 <- jd[, 1:10]
+data_part2 <- jd[, 11:20]
+data_part3 <- jd[, 21:30]
+data_part4 <- jd[, 31:42]
+# Continue as needed...
+
+# Plot each part separately
+boxplot(data_part1, main="Boxplot Part 1")
+boxplot(data_part2, main="Boxplot Part 2")
+boxplot(data_part3)
+boxplot(data_part4)
+# Add additional plots as necessary
+png("boxplot_output.png", width=1200, height=800)
+boxplot(jd[, 1:(ncol(jd)-2)], main="Boxplot of All Columns Except the Last Two")
+dev.off()
+
+```
+
+
+Merge the statichouse data and energy data 
+
+
+```{r}
+
+names(julydatacounty)[which(names(julydatacounty) == "building_id")] <- "bldg_id"
+julydatacounty$bldg_id <- as.numeric(julydatacounty$bldg_id)
+avghouses1$bldg_id <- as.numeric(avghouses1$bldg_id)
+mergeSE <- left_join(avghouses1, julydatacounty, by = c("bldg_id"))
+
+#view(mergeSE)
+```
+
+
+
+
